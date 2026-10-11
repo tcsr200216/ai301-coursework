@@ -2,60 +2,68 @@
 
 Path: `beat-1-sandbox/unit-4/pull-request.md`
 
-Record of the pull request you opened against the Path Review repo, and of the evaluation
-runs that produced `eval-run.txt`. This file is graded at the path above; a copy kept
-anywhere else in the repository is not read.
-
-Complete every labelled field below. Each is graded on its own; content placed under the wrong
-label is not graded.
-
----
-
 ## Your pull request
 
 **Pull request**
 
-[Link to the pull request you opened. It must be the pull request's own page on the Path
-Review repo, not your fork's branch page.]
+https://github.com/codepath/pathreview-ai301-fa26-s3/pull/141
 
 **Branch**
 
-[The name of the branch the pull request comes from, exactly as it appears in your fork.
-The naming shape is a type prefix, then the issue number, then a short description. **The
-issue number in the branch name must be the number of the issue the pull request fixes** —
-a name carrying any other number does not satisfy this field.]
+fix/69-json-array-fallback
 
 ## Eval iterations
 
-Answer all four sections. Quote source text directly; paraphrase does not satisfy these
-fields.
-
 **Run history**
 
-[The agreement score of each run you did, in order. A single run is a complete answer if
-only one run occurred. **The last score in your list must match the agreement line in the
-`eval-run.txt` you committed** — that file is the record of your final run.]
+The evaluator runs, in order, were:
+
+- 14/20
+- 2/2 (`pkg-02`, `pkg-04`)
+- 5/5 (`pkg-05`, `pkg-08`, `pkg-11`, `pkg-13`, `pkg-16`)
+- 4/4 (`pkg-01`, `pkg-03`, `pkg-07`, `pkg-12`)
+- 19/20
+- 5/5 (`pkg-16`, `pkg-03`, `pkg-06`, `pkg-09`, `pkg-17`)
+- 20/20
+
+The final committed evaluation record says:
+
+> agreement: 20/20 scored items  (bar: 18/20: PASS)
 
 **Package analysis**
 
-[Pick one scored package (`pkg-01` through `pkg-20` — the four `calib-` packages are never
-scored). Name it by id, say what your rubric decided and what the gold label said, and
-explain why your rubric read it that way.]
+I analyzed `pkg-16`.
+
+My rubric's final verdict for `pkg-16` was `accept`, and the gold label was also `accept`.
+
+Earlier, this package exposed that my `plan-fidelity` check was too willing to infer silent drift from behavior that was not actually demonstrated by the supplied package. I revised the check so that it grades the observable supplied evidence instead of inventing hypothetical effects in unseen callers.
+
+The final rubric specifically accounts for a plan that intentionally changes a shared helper while requiring another caller or path to preserve its semantics. In that situation, a helper-level change alone is not enough to prove drift. The supplied diff or evidence has to actually show that the preserved behavior changed.
+
+After that revision, `pkg-16` was accepted while the real silent-drift canaries still rejected correctly. In the final run, `pkg-16` appears as:
+
+> pkg-16  clear-accept    accept  accept   yes
 
 **Check rationale**
 
-[Quote one check from the `rubric.md` you uploaded to `tools/pr-precheck/`, exactly as it reads now.
-Then say why it reads that way — what you revised to get there, or what you rejected in
-favour of it.]
+I revised the `test-evidence` check during evaluation. Its current pass condition is:
+
+> Pass if the evidence crediblydemonstrates the relevant behavior and required verification. Behavior-specific reproduction evidence should show observable before/after results when that distinction matters. Repository checks may be supported by the exact command and a concrete reported outcome such as pass/fail status, test counts, or other specific result; their entire raw terminal output is not required. Tests visible in the diff may also establish coverage when their assertions directly exercise the claimed behavior and the evidence reports that the relevant suite passed. Fail vague assertions such as only `tests pass`, missing verification, or evidence that does not exercise the behavior it claims to prove. An honestly reported failing command may still provide valid evidence of what was run and what remains incomplete.
+
+I changed it because the first version required too much raw terminal transcript. That caused legitimate clear-accept packages to fail even when they supplied the exact command and a concrete result such as a test count or pass/fail outcome.
+
+The revised wording still requires behavior-specific evidence and rejects vague claims such as only saying `tests pass`, but it no longer requires an entire raw terminal log when a precise command and concrete outcome are sufficient to verify the claim.
 
 **Trade-offs**
 
-[Every check gives something up. Any one of these is a complete answer: a package whose
-result it changes, a canary you re-ran with `--only`, a case you accept it will miss, or a
-stated reason nothing changed elsewhere. "Nothing changed, and here is how I know" earns
-the point in full when the reason follows.]
+The main trade-off in the `test-evidence` revision is that it accepts summarized command results instead of requiring the entire raw terminal transcript. That makes the check less strict about the presentation of evidence, but it still requires a specific command and concrete result and still rejects vague or missing verification.
 
----
+I tested that trade-off directly with targeted evaluator runs. After changing the rule, I re-ran `pkg-02` and the `pkg-04` not-tested canary together and got `2/2`. I then re-ran the remaining clear-accept packages and got `5/5`, while a separate set of reject canaries got `4/4`.
 
-Related paths: `eval-run.txt` in this directory; your skill's files in
-`tools/pr-precheck/`.
+I also refined `plan-fidelity` after `pkg-16` exposed an over-strict inference. I re-ran `pkg-16` together with the silent-drift canaries `pkg-03`, `pkg-06`, `pkg-09`, and `pkg-17`, and that targeted run scored `5/5`. The final full evaluator run then reached:
+
+> categories: clear-accept 7/7  not-tested 4/4  silent-drift 4/4  standards-wall 2/2  unreviewable 3/3
+
+> agreement: 20/20 scored items  (bar: 18/20: PASS)
+
+This showed that the revisions fixed the false rejection without losing the intended reject behavior in the canary categories.
