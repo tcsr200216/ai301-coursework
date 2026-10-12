@@ -46,7 +46,7 @@ After that revision, `pkg-16` was accepted while the real silent-drift canaries 
 
 **Check rationale**
 
-I revised the `test-evidence` check during evaluation. Its current pass condition is:
+I revised the `test-evidence` check during evaluation. The current `test-evidence` check is:
 
 > | test-evidence | Compare `test_evidence.md` or the package's Test evidence against the plan's test plan, the reproduced issue behavior, the PR's testing claims, and the repository's required checks. | Pass if the evidence credibly demonstrates the relevant behavior and required verification. Behavior-specific reproduction evidence should show observable before/after results when that distinction matters. Repository checks may be supported by the exact command and a concrete reported outcome such as pass/fail status, test counts, or other specific result; their entire raw terminal output is not required. Tests visible in the diff may also establish coverage when their assertions directly exercise the claimed behavior and the evidence reports that the relevant suite passed. Fail vague assertions such as only `tests pass`, missing verification, or evidence that does not exercise the behavior it claims to prove. An honestly reported failing command may still provide valid evidence of what was run and what remains incomplete. | required |
 
