@@ -55,10 +55,9 @@ happened; these entries are the toolkit's own timeline.
 All four entries are graded. Keep every heading below, and fill each
 one in the week it belongs to.
 
-**Unit 5: [one line on the tool work]**
+**Unit 5: Built an issue scout to search, rank, and grade real GitHub contribution candidates**
 
-[2-4 sentences: what you built (the scout, your strategy), what broke
-or fell short, what changed because of it.]
+I configured the scout with five GitHub searches across Java, TypeScript, Python, and AI/LLM-related work, then ranked candidates by assignment status, freshness, comment count, and recency. My first scan found 488 unique issues, reduced them to 354 candidates, and graded the top five, accepting four and rejecting one because an open PR already implemented the fix. While grading manually selected vLLM candidates, production-stack#410 passed every rubric check even though its headline feature had already been merged, revealing that the scout needs an additional check to verify that the requested work is still missing on the current default branch.
 
 **Unit 6: [one line on the tool work]**
 
